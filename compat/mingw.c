@@ -2879,7 +2879,14 @@ static void adjust_symlink_flags(void)
 		symlink_file_flags |= 2;
 		symlink_directory_flags |= 2;
 	}
+}
 
+static BOOL WINAPI handle_ctrl_c(DWORD ctrl_type)
+{
+	if (ctrl_type != CTRL_C_EVENT)
+		return FALSE; /* we did not handle this */
+	mingw_raise(SIGINT);
+	return TRUE; /* we did handle this */
 }
 
 #ifdef _MSC_VER
@@ -2914,6 +2921,8 @@ int wmain(int argc, const wchar_t **wargv)
 #endif
 
 	trace2_initialize_clock();
+
+	SetConsoleCtrlHandler(handle_ctrl_c, TRUE);
 
 	maybe_redirect_std_handles();
 	adjust_symlink_flags();
